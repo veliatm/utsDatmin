@@ -1,0 +1,52 @@
+---
+title: "uts"
+author: "Velia"
+date: "10/27/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(randomForest)
+library(caret)
+library(psych)
+```
+
+```{r}
+lym <- read.csv("lymphography.data", header=FALSE)
+head(lym)
+str(lym)
+```
+
+```{r}
+for (i in names(lym)){
+    lym[,i]=as.factor(lym[,i])
+}
+str(lym)
+```
+
+```{r}
+pairs.panels(lym)
+```
+
+```{r}
+set.seed(1234)
+sampel <- sample(2, nrow(lym), replace = T, prob = c(0.8,0.2))
+trainingdata <- lym[sampel == 1, ]
+testingdata <-lym[sampel == 2, ]
+print(paste("Jumlah Train Data: ", nrow(trainingdata), "|Jumlah Testing Data: ", nrow(testingdata)))
+```
+
+```{r}
+model <- randomForest(V7~., data = trainingdata)
+model
+```
+
+```{r}
+prediksiRF <- predict(model, testingdata)
+confusionMatrix(table(prediksiRF, testingdata$V7))
+```
+
